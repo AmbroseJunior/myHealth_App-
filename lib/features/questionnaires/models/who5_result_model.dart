@@ -1,6 +1,6 @@
 class Who5ResultModel {
   final int? id;
-  final int userId;
+  final String userId;
   final String recordedAt;
   final int q1, q2, q3, q4, q5;
   final int totalScore;
@@ -18,7 +18,7 @@ class Who5ResultModel {
 
   factory Who5ResultModel.fromMap(Map<String, dynamic> m) => Who5ResultModel(
         id: m['id'] as int?,
-        userId: m['user_id'] as int,
+        userId: m['user_id'] as String,
         recordedAt: m['recorded_at'] as String,
         q1: m['q1'] as int, q2: m['q2'] as int, q3: m['q3'] as int,
         q4: m['q4'] as int, q5: m['q5'] as int,

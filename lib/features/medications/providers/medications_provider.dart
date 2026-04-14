@@ -1,44 +1,46 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../../../core/database/database_helper.dart';
-import '../../../core/constants/db_constants.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/utils/app_date_utils.dart';
 import '../models/medication_model.dart';
 
 class MedicationsProvider extends ChangeNotifier {
-  final DatabaseHelper _db = DatabaseHelper();
+  final _client = Supabase.instance.client;
   List<MedicationModel> medications = [];
   List<Map<String, dynamic>> history = [];
   bool isLoading = false;
 
-  Future<void> load(int userId) async {
+  Future<void> load(String userId) async {
     isLoading = true;
     notifyListeners();
-    final db = await _db.database;
-    final rows = await db.query(DbConstants.tableMedications,
-        where: 'user_id = ?', whereArgs: [userId], orderBy: 'created_at DESC');
-    medications = rows.map(MedicationModel.fromMap).toList();
+    final rows = await _client
+        .from('medications')
+        .select()
+        .eq('user_id', userId)
+        .order('created_at', ascending: false);
+    medications = rows.map((m) => MedicationModel.fromMap(m)).toList();
     isLoading = false;
     notifyListeners();
   }
 
   Future<void> add(MedicationModel m) async {
-    final db = await _db.database;
-    final id = await db.insert(DbConstants.tableMedications, m.toMap());
-    await db.insert(DbConstants.tableMedicationHistory, {
-      'medication_id': id,
+    final inserted = await _client
+        .from('medications')
+        .insert(m.toMap())
+        .select()
+        .single();
+    await _client.from('medication_history').insert({
+      'medication_id': inserted['id'],
       'changed_at': AppDateUtils.nowIso(),
       'change_type': 'create',
-      'snapshot': json.encode({...m.toMap(), 'id': id}),
+      'snapshot': json.encode({...m.toMap(), 'id': inserted['id']}),
     });
     await load(m.userId);
   }
 
   Future<void> update(MedicationModel m) async {
-    final db = await _db.database;
-    await db.update(DbConstants.tableMedications, m.toMap(),
-        where: 'id = ?', whereArgs: [m.id]);
-    await db.insert(DbConstants.tableMedicationHistory, {
+    await _client.from('medications').update(m.toMap()).eq('id', m.id!);
+    await _client.from('medication_history').insert({
       'medication_id': m.id,
       'changed_at': AppDateUtils.nowIso(),
       'change_type': 'update',
@@ -47,17 +49,18 @@ class MedicationsProvider extends ChangeNotifier {
     await load(m.userId);
   }
 
-  Future<void> delete(int id, int userId) async {
-    final db = await _db.database;
-    await db.delete(DbConstants.tableMedications, where: 'id = ?', whereArgs: [id]);
+  Future<void> delete(int id, String userId) async {
+    await _client.from('medications').delete().eq('id', id);
     await load(userId);
   }
 
   Future<void> loadHistory(int medicationId) async {
-    final db = await _db.database;
-    final rows = await db.query(DbConstants.tableMedicationHistory,
-        where: 'medication_id = ?', whereArgs: [medicationId], orderBy: 'changed_at DESC');
-    history = rows;
+    final rows = await _client
+        .from('medication_history')
+        .select()
+        .eq('medication_id', medicationId)
+        .order('changed_at', ascending: false);
+    history = List<Map<String, dynamic>>.from(rows);
     notifyListeners();
   }
 }

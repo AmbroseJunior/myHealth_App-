@@ -1,6 +1,6 @@
 class PatientModel {
   final int? id;
-  final int userId;
+  final String userId;
   final String firstName;
   final String lastName;
   final String? dateOfBirth;
@@ -23,7 +23,7 @@ class PatientModel {
 
   factory PatientModel.fromMap(Map<String, dynamic> m) => PatientModel(
         id: m['id'] as int?,
-        userId: m['user_id'] as int,
+        userId: m['user_id'] as String,
         firstName: m['first_name'] as String? ?? '',
         lastName: m['last_name'] as String? ?? '',
         dateOfBirth: m['date_of_birth'] as String?,

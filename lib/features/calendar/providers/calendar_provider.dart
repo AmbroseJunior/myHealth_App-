@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../core/database/database_helper.dart';
-import '../../../core/constants/db_constants.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/calendar_event_model.dart';
 
 class CalendarProvider extends ChangeNotifier {
-  final DatabaseHelper _db = DatabaseHelper();
+  final _client = Supabase.instance.client;
   Map<DateTime, List<CalendarEventModel>> events = {};
   bool isLoading = false;
 
@@ -15,16 +14,16 @@ class CalendarProvider extends ChangeNotifier {
     events.putIfAbsent(key, () => []).add(event);
   }
 
-  Future<void> load(int userId) async {
+  Future<void> load(String userId) async {
     isLoading = true;
     events = {};
     notifyListeners();
 
-    final db = await _db.database;
-
     // WHO-5
-    final who5 = await db.query(DbConstants.tableWho5,
-        where: 'user_id = ?', whereArgs: [userId]);
+    final who5 = await _client
+        .from('who5_results')
+        .select()
+        .eq('user_id', userId);
     for (final r in who5) {
       final date = DateTime.parse(r['recorded_at'] as String);
       final score = r['total_score'] as int;
@@ -36,8 +35,10 @@ class CalendarProvider extends ChangeNotifier {
     }
 
     // Framingham
-    final framingham = await db.query(DbConstants.tableFramingham,
-        where: 'user_id = ?', whereArgs: [userId]);
+    final framingham = await _client
+        .from('framingham_results')
+        .select()
+        .eq('user_id', userId);
     for (final r in framingham) {
       final date = DateTime.parse(r['recorded_at'] as String);
       final risk = (r['risk_percent'] as num).toDouble();
@@ -49,8 +50,10 @@ class CalendarProvider extends ChangeNotifier {
     }
 
     // FINDRISC
-    final findrisc = await db.query(DbConstants.tableFindrisc,
-        where: 'user_id = ?', whereArgs: [userId]);
+    final findrisc = await _client
+        .from('findrisc_results')
+        .select()
+        .eq('user_id', userId);
     for (final r in findrisc) {
       final date = DateTime.parse(r['recorded_at'] as String);
       final score = r['total_score'] as int;
@@ -62,8 +65,10 @@ class CalendarProvider extends ChangeNotifier {
     }
 
     // Allergies
-    final allergies = await db.query(DbConstants.tableAllergies,
-        where: 'user_id = ?', whereArgs: [userId]);
+    final allergies = await _client
+        .from('allergies')
+        .select()
+        .eq('user_id', userId);
     for (final r in allergies) {
       final onsetStr = r['onset_date'] as String?;
       final createdStr = r['created_at'] as String;
@@ -77,9 +82,11 @@ class CalendarProvider extends ChangeNotifier {
       ));
     }
 
-    // Medications (start date)
-    final meds = await db.query(DbConstants.tableMedications,
-        where: 'user_id = ?', whereArgs: [userId]);
+    // Medications
+    final meds = await _client
+        .from('medications')
+        .select()
+        .eq('user_id', userId);
     for (final r in meds) {
       final startStr = r['start_date'] as String?;
       final createdStr = r['created_at'] as String;
@@ -94,8 +101,10 @@ class CalendarProvider extends ChangeNotifier {
     }
 
     // Problems
-    final problems = await db.query(DbConstants.tableProblems,
-        where: 'user_id = ?', whereArgs: [userId]);
+    final problems = await _client
+        .from('problems')
+        .select()
+        .eq('user_id', userId);
     for (final r in problems) {
       final onsetStr = r['onset_date'] as String?;
       final createdStr = r['created_at'] as String;

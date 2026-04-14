@@ -1,6 +1,6 @@
 class ProblemModel {
   final int? id;
-  final int userId;
+  final String userId;
   final String icd10Code;
   final String icd10Title;
   final String status;
@@ -21,7 +21,7 @@ class ProblemModel {
 
   factory ProblemModel.fromMap(Map<String, dynamic> m) => ProblemModel(
         id: m['id'] as int?,
-        userId: m['user_id'] as int,
+        userId: m['user_id'] as String,
         icd10Code: m['icd10_code'] as String,
         icd10Title: m['icd10_title'] as String,
         status: m['status'] as String? ?? 'active',

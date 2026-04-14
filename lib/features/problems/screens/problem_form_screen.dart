@@ -40,15 +40,19 @@ class _ProblemFormScreenState extends State<ProblemFormScreen> {
         _titleCtrl.text = arg.icd10Title;
         _notesCtrl.text = arg.notes ?? '';
         _status = arg.status;
-        _onsetDate = arg.onsetDate != null ? DateTime.tryParse(arg.onsetDate!) : null;
+        _onsetDate = arg.onsetDate != null
+            ? DateTime.tryParse(arg.onsetDate!)
+            : null;
       }
     }
   }
 
   @override
   void dispose() {
-    _searchCtrl.dispose(); _codeCtrl.dispose();
-    _titleCtrl.dispose(); _notesCtrl.dispose();
+    _searchCtrl.dispose();
+    _codeCtrl.dispose();
+    _titleCtrl.dispose();
+    _notesCtrl.dispose();
     super.dispose();
   }
 
@@ -59,7 +63,10 @@ class _ProblemFormScreenState extends State<ProblemFormScreen> {
     }
     setState(() => _searching = true);
     final results = await Icd10Search.search(q);
-    setState(() { _searchResults = results; _searching = false; });
+    setState(() {
+      _searchResults = results;
+      _searching = false;
+    });
   }
 
   void _selectIcd(Icd10Entry entry) {
@@ -79,7 +86,9 @@ class _ProblemFormScreenState extends State<ProblemFormScreen> {
       icd10Code: _codeCtrl.text.trim().toUpperCase(),
       icd10Title: _titleCtrl.text.trim(),
       status: _status,
-      onsetDate: _onsetDate != null ? AppDateUtils.formatDate(_onsetDate!) : null,
+      onsetDate: _onsetDate != null
+          ? AppDateUtils.formatDate(_onsetDate!)
+          : null,
       notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
       createdAt: _editing?.createdAt ?? AppDateUtils.nowIso(),
     );
@@ -135,7 +144,10 @@ class _ProblemFormScreenState extends State<ProblemFormScreen> {
                         final e = _searchResults[i];
                         return ListTile(
                           dense: true,
-                          title: Text('${e.code} — ${e.title}', style: const TextStyle(fontSize: 13)),
+                          title: Text(
+                            '${e.code} — ${e.title}',
+                            style: const TextStyle(fontSize: 13),
+                          ),
                           onTap: () => _selectIcd(e),
                         );
                       },
@@ -145,32 +157,52 @@ class _ProblemFormScreenState extends State<ProblemFormScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _codeCtrl,
-                decoration: InputDecoration(labelText: l.icd10Code, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.icd10Code,
+                  border: const OutlineInputBorder(),
+                ),
                 validator: (v) => Validators.required(v, l.fieldRequired),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _titleCtrl,
-                decoration: InputDecoration(labelText: l.diagnosis, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.diagnosis,
+                  border: const OutlineInputBorder(),
+                ),
                 validator: (v) => Validators.required(v, l.fieldRequired),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _status,
-                decoration: InputDecoration(labelText: l.status, border: const OutlineInputBorder()),
+                initialValue: _status,
+                decoration: InputDecoration(
+                  labelText: l.status,
+                  border: const OutlineInputBorder(),
+                ),
                 items: [
-                  DropdownMenuItem(value: 'active', child: Text(l.statusActive)),
-                  DropdownMenuItem(value: 'resolved', child: Text(l.statusResolved)),
-                  DropdownMenuItem(value: 'chronic', child: Text(l.statusChronic)),
+                  DropdownMenuItem(
+                    value: 'active',
+                    child: Text(l.statusActive),
+                  ),
+                  DropdownMenuItem(
+                    value: 'resolved',
+                    child: Text(l.statusResolved),
+                  ),
+                  DropdownMenuItem(
+                    value: 'chronic',
+                    child: Text(l.statusChronic),
+                  ),
                 ],
                 onChanged: (v) => setState(() => _status = v!),
               ),
               const SizedBox(height: 12),
               ListTile(
                 title: Text(l.onsetDate),
-                subtitle: Text(_onsetDate != null
-                    ? AppDateUtils.formatDateDisplay(_onsetDate!)
-                    : 'Not set'),
+                subtitle: Text(
+                  _onsetDate != null
+                      ? AppDateUtils.formatDateDisplay(_onsetDate!)
+                      : 'Not set',
+                ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
                   final d = await showDatePicker(
@@ -182,13 +214,17 @@ class _ProblemFormScreenState extends State<ProblemFormScreen> {
                   if (d != null) setState(() => _onsetDate = d);
                 },
                 shape: RoundedRectangleBorder(
-                    side: const BorderSide(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4)),
+                  side: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _notesCtrl,
-                decoration: InputDecoration(labelText: l.notes, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.notes,
+                  border: const OutlineInputBorder(),
+                ),
                 maxLines: 3,
               ),
               const SizedBox(height: 24),

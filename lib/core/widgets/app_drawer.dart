@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../features/auth/providers/auth_provider.dart';
-import '../../features/settings/providers/locale_provider.dart';
 import '../constants/route_names.dart';
 import 'package:my_health_app/l10n/app_localizations.dart';
 
@@ -25,13 +24,24 @@ class AppDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const Icon(Icons.health_and_safety, color: Colors.white, size: 40),
+                const Icon(
+                  Icons.health_and_safety,
+                  color: Colors.white,
+                  size: 40,
+                ),
                 const SizedBox(height: 8),
-                Text(l.appTitle,
-                    style: const TextStyle(
-                        color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                Text(auth.currentUser?['email'] ?? '',
-                    style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                Text(
+                  l.appTitle,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  auth.currentUser?.email ?? '',
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -39,11 +49,31 @@ class AppDrawer extends StatelessWidget {
           _tile(context, Icons.person, l.demographics, RouteNames.demographics),
           const Divider(),
           _tile(context, Icons.psychology, l.who5Title, RouteNames.who5),
-          _tile(context, Icons.favorite, l.framinghamTitle, RouteNames.framingham),
-          _tile(context, Icons.monitor_heart, l.findRiscTitle, RouteNames.findrisc),
+          _tile(
+            context,
+            Icons.favorite,
+            l.framinghamTitle,
+            RouteNames.framingham,
+          ),
+          _tile(
+            context,
+            Icons.monitor_heart,
+            l.findRiscTitle,
+            RouteNames.findrisc,
+          ),
           const Divider(),
-          _tile(context, Icons.warning_amber, l.allergies, RouteNames.allergies),
-          _tile(context, Icons.medication, l.medications, RouteNames.medications),
+          _tile(
+            context,
+            Icons.warning_amber,
+            l.allergies,
+            RouteNames.allergies,
+          ),
+          _tile(
+            context,
+            Icons.medication,
+            l.medications,
+            RouteNames.medications,
+          ),
           _tile(context, Icons.list_alt, l.problems, RouteNames.problems),
           const Divider(),
           _tile(context, Icons.calendar_month, l.calendar, RouteNames.calendar),
@@ -54,8 +84,9 @@ class AppDrawer extends StatelessWidget {
             title: Text(l.logout),
             onTap: () {
               context.read<AuthProvider>().logout();
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                  RouteNames.login, (_) => false);
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil(RouteNames.login, (_) => false);
             },
           ),
         ],
@@ -63,7 +94,12 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _tile(BuildContext context, IconData icon, String label, String route) {
+  Widget _tile(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String route,
+  ) {
     return ListTile(
       leading: Icon(icon),
       title: Text(label),

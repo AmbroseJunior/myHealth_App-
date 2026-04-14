@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
-import '../../../core/database/database_helper.dart';
-import '../../../core/constants/db_constants.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/framingham_result_model.dart';
 
 class FraminghamProvider extends ChangeNotifier {
-  final DatabaseHelper _db = DatabaseHelper();
+  final _client = Supabase.instance.client;
   List<FraminghamResultModel> results = [];
   bool isLoading = false;
 
-  Future<void> load(int userId) async {
+  Future<void> load(String userId) async {
     isLoading = true;
     notifyListeners();
-    final db = await _db.database;
-    final rows = await db.query(DbConstants.tableFramingham,
-        where: 'user_id = ?', whereArgs: [userId], orderBy: 'recorded_at DESC');
-    results = rows.map(FraminghamResultModel.fromMap).toList();
+    final rows = await _client
+        .from('framingham_results')
+        .select()
+        .eq('user_id', userId)
+        .order('recorded_at', ascending: false);
+    results = rows.map((m) => FraminghamResultModel.fromMap(m)).toList();
     isLoading = false;
     notifyListeners();
   }
 
   Future<void> save(FraminghamResultModel r) async {
-    final db = await _db.database;
-    await db.insert(DbConstants.tableFramingham, r.toMap());
+    await _client.from('framingham_results').insert(r.toMap());
     await load(r.userId);
   }
 }

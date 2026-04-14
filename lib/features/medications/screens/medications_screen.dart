@@ -68,7 +68,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> with SingleTicker
     );
   }
 
-  Widget _medList(BuildContext context, AppLocalizations l, List meds, int userId, MedicationsProvider prov) {
+  Widget _medList(BuildContext context, AppLocalizations l, List meds, String userId, MedicationsProvider prov) {
     if (meds.isEmpty) return Center(child: Text(l.noMedications));
     return ListView.builder(
       padding: const EdgeInsets.all(16),

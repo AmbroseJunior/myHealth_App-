@@ -35,14 +35,18 @@ class _AllergyFormScreenState extends State<AllergyFormScreen> {
         _reactionCtrl.text = arg.reaction ?? '';
         _notesCtrl.text = arg.notes ?? '';
         _severity = arg.severity;
-        _onsetDate = arg.onsetDate != null ? DateTime.tryParse(arg.onsetDate!) : null;
+        _onsetDate = arg.onsetDate != null
+            ? DateTime.tryParse(arg.onsetDate!)
+            : null;
       }
     }
   }
 
   @override
   void dispose() {
-    _allergenCtrl.dispose(); _reactionCtrl.dispose(); _notesCtrl.dispose();
+    _allergenCtrl.dispose();
+    _reactionCtrl.dispose();
+    _notesCtrl.dispose();
     super.dispose();
   }
 
@@ -55,9 +59,13 @@ class _AllergyFormScreenState extends State<AllergyFormScreen> {
       id: _editing?.id,
       userId: userId,
       allergen: _allergenCtrl.text.trim(),
-      reaction: _reactionCtrl.text.trim().isEmpty ? null : _reactionCtrl.text.trim(),
+      reaction: _reactionCtrl.text.trim().isEmpty
+          ? null
+          : _reactionCtrl.text.trim(),
       severity: _severity,
-      onsetDate: _onsetDate != null ? AppDateUtils.formatDate(_onsetDate!) : null,
+      onsetDate: _onsetDate != null
+          ? AppDateUtils.formatDate(_onsetDate!)
+          : null,
       notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
       createdAt: _editing?.createdAt ?? now,
     );
@@ -86,29 +94,48 @@ class _AllergyFormScreenState extends State<AllergyFormScreen> {
             children: [
               TextFormField(
                 controller: _allergenCtrl,
-                decoration: InputDecoration(labelText: l.allergen, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.allergen,
+                  border: const OutlineInputBorder(),
+                ),
                 validator: (v) => Validators.required(v, l.fieldRequired),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _reactionCtrl,
-                decoration: InputDecoration(labelText: l.reaction, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.reaction,
+                  border: const OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _severity,
-                decoration: InputDecoration(labelText: l.severity, border: const OutlineInputBorder()),
+                initialValue: _severity,
+                decoration: InputDecoration(
+                  labelText: l.severity,
+                  border: const OutlineInputBorder(),
+                ),
                 items: [
                   DropdownMenuItem(value: 'mild', child: Text(l.severityMild)),
-                  DropdownMenuItem(value: 'moderate', child: Text(l.severityModerate)),
-                  DropdownMenuItem(value: 'severe', child: Text(l.severitySevere)),
+                  DropdownMenuItem(
+                    value: 'moderate',
+                    child: Text(l.severityModerate),
+                  ),
+                  DropdownMenuItem(
+                    value: 'severe',
+                    child: Text(l.severitySevere),
+                  ),
                 ],
                 onChanged: (v) => setState(() => _severity = v),
               ),
               const SizedBox(height: 12),
               ListTile(
                 title: Text(l.onsetDate),
-                subtitle: Text(_onsetDate != null ? AppDateUtils.formatDateDisplay(_onsetDate!) : 'Not set'),
+                subtitle: Text(
+                  _onsetDate != null
+                      ? AppDateUtils.formatDateDisplay(_onsetDate!)
+                      : 'Not set',
+                ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
                   final d = await showDatePicker(
@@ -120,13 +147,17 @@ class _AllergyFormScreenState extends State<AllergyFormScreen> {
                   if (d != null) setState(() => _onsetDate = d);
                 },
                 shape: RoundedRectangleBorder(
-                    side: const BorderSide(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4)),
+                  side: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _notesCtrl,
-                decoration: InputDecoration(labelText: l.notes, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.notes,
+                  border: const OutlineInputBorder(),
+                ),
                 maxLines: 3,
               ),
               const SizedBox(height: 24),

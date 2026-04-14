@@ -1,6 +1,6 @@
 class FindriscResultModel {
   final int? id;
-  final int userId;
+  final String userId;
   final String recordedAt;
   final int ageScore;
   final int bmiScore;
@@ -31,7 +31,7 @@ class FindriscResultModel {
 
   factory FindriscResultModel.fromMap(Map<String, dynamic> m) => FindriscResultModel(
         id: m['id'] as int?,
-        userId: m['user_id'] as int,
+        userId: m['user_id'] as String,
         recordedAt: m['recorded_at'] as String,
         ageScore: m['age_score'] as int,
         bmiScore: m['bmi_score'] as int,

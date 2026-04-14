@@ -49,41 +49,54 @@ class _FraminghamFormScreenState extends State<FraminghamFormScreen> {
   }
 
   Future<void> _save() async {
-    if (_result == null) { _calculate(); return; }
+    if (_result == null) {
+      _calculate();
+      return;
+    }
     setState(() => _saving = true);
     final userId = context.read<AuthProvider>().userId;
-    await context.read<FraminghamProvider>().save(FraminghamResultModel(
-          userId: userId,
-          recordedAt: AppDateUtils.nowIso(),
-          age: int.parse(_ageCtrl.text),
-          gender: _gender,
-          totalChol: double.parse(_cholCtrl.text),
-          hdlChol: double.parse(_hdlCtrl.text),
-          systolicBp: int.parse(_bpCtrl.text),
-          isBpTreated: _bpTreated,
-          isSmoker: _smoker,
-          riskPercent: _result!,
-        ));
+    await context.read<FraminghamProvider>().save(
+      FraminghamResultModel(
+        userId: userId,
+        recordedAt: AppDateUtils.nowIso(),
+        age: int.parse(_ageCtrl.text),
+        gender: _gender,
+        totalChol: double.parse(_cholCtrl.text),
+        hdlChol: double.parse(_hdlCtrl.text),
+        systolicBp: int.parse(_bpCtrl.text),
+        isBpTreated: _bpTreated,
+        isSmoker: _smoker,
+        riskPercent: _result!,
+      ),
+    );
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Framingham score saved!'), backgroundColor: Colors.green),
+      const SnackBar(
+        content: Text('Framingham score saved!'),
+        backgroundColor: Colors.green,
+      ),
     );
     setState(() => _saving = false);
   }
 
   @override
   void dispose() {
-    _ageCtrl.dispose(); _cholCtrl.dispose();
-    _hdlCtrl.dispose(); _bpCtrl.dispose();
+    _ageCtrl.dispose();
+    _cholCtrl.dispose();
+    _hdlCtrl.dispose();
+    _bpCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    Color resultColor = _result == null ? Colors.grey
-        : _result! < 10 ? Colors.green
-        : _result! < 20 ? Colors.orange
+    Color resultColor = _result == null
+        ? Colors.grey
+        : _result! < 10
+        ? Colors.green
+        : _result! < 20
+        ? Colors.orange
         : Colors.red;
 
     return Scaffold(
@@ -91,7 +104,8 @@ class _FraminghamFormScreenState extends State<FraminghamFormScreen> {
         title: Text(l.framinghamTitle),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pushNamed(RouteNames.framinghamHistory),
+            onPressed: () =>
+                Navigator.of(context).pushNamed(RouteNames.framinghamHistory),
             child: Text(l.history, style: const TextStyle(color: Colors.white)),
           ),
         ],
@@ -105,18 +119,27 @@ class _FraminghamFormScreenState extends State<FraminghamFormScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DropdownButtonFormField<String>(
-                value: _gender,
-                decoration: InputDecoration(labelText: l.gender, border: const OutlineInputBorder()),
+                initialValue: _gender,
+                decoration: InputDecoration(
+                  labelText: l.gender,
+                  border: const OutlineInputBorder(),
+                ),
                 items: [
                   DropdownMenuItem(value: 'male', child: Text(l.male)),
                   DropdownMenuItem(value: 'female', child: Text(l.female)),
                 ],
-                onChanged: (v) => setState(() { _gender = v!; _result = null; }),
+                onChanged: (v) => setState(() {
+                  _gender = v!;
+                  _result = null;
+                }),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _ageCtrl,
-                decoration: InputDecoration(labelText: l.age, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.age,
+                  border: const OutlineInputBorder(),
+                ),
                 keyboardType: TextInputType.number,
                 validator: Validators.number,
                 onChanged: (_) => setState(() => _result = null),
@@ -124,23 +147,36 @@ class _FraminghamFormScreenState extends State<FraminghamFormScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _cholCtrl,
-                decoration: InputDecoration(labelText: l.totalCholesterol, border: const OutlineInputBorder()),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: l.totalCholesterol,
+                  border: const OutlineInputBorder(),
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: Validators.number,
                 onChanged: (_) => setState(() => _result = null),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _hdlCtrl,
-                decoration: InputDecoration(labelText: l.hdlCholesterol, border: const OutlineInputBorder()),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: l.hdlCholesterol,
+                  border: const OutlineInputBorder(),
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: Validators.number,
                 onChanged: (_) => setState(() => _result = null),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _bpCtrl,
-                decoration: InputDecoration(labelText: l.systolicBP, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.systolicBP,
+                  border: const OutlineInputBorder(),
+                ),
                 keyboardType: TextInputType.number,
                 validator: Validators.number,
                 onChanged: (_) => setState(() => _result = null),
@@ -149,12 +185,18 @@ class _FraminghamFormScreenState extends State<FraminghamFormScreen> {
               SwitchListTile(
                 title: Text(l.bpTreated),
                 value: _bpTreated,
-                onChanged: (v) => setState(() { _bpTreated = v; _result = null; }),
+                onChanged: (v) => setState(() {
+                  _bpTreated = v;
+                  _result = null;
+                }),
               ),
               SwitchListTile(
                 title: Text(l.smoker),
                 value: _smoker,
-                onChanged: (v) => setState(() { _smoker = v; _result = null; }),
+                onChanged: (v) => setState(() {
+                  _smoker = v;
+                  _result = null;
+                }),
               ),
               const SizedBox(height: 16),
               Row(
@@ -172,11 +214,13 @@ class _FraminghamFormScreenState extends State<FraminghamFormScreen> {
                       child: ElevatedButton.icon(
                         icon: const Icon(Icons.save),
                         onPressed: _saving ? null : _save,
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
                         label: Text(l.save),
                       ),
                     ),
-                  ]
+                  ],
                 ],
               ),
               if (_result != null) ...[
@@ -184,18 +228,32 @@ class _FraminghamFormScreenState extends State<FraminghamFormScreen> {
                 Card(
                   color: resultColor.withOpacity(0.1),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: resultColor)),
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: resultColor),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        Text('${l.riskPercent}',
-                            style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                        Text('${_result!.toStringAsFixed(1)}%',
-                            style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: resultColor)),
-                        Text(_category ?? '',
-                            style: TextStyle(fontSize: 16, color: resultColor)),
+                        Text(
+                          l.riskPercent,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Text(
+                          '${_result!.toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: resultColor,
+                          ),
+                        ),
+                        Text(
+                          _category ?? '',
+                          style: TextStyle(fontSize: 16, color: resultColor),
+                        ),
                       ],
                     ),
                   ),

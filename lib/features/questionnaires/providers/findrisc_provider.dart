@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
-import '../../../core/database/database_helper.dart';
-import '../../../core/constants/db_constants.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/findrisc_result_model.dart';
 
 class FindriscProvider extends ChangeNotifier {
-  final DatabaseHelper _db = DatabaseHelper();
+  final _client = Supabase.instance.client;
   List<FindriscResultModel> results = [];
   bool isLoading = false;
 
-  Future<void> load(int userId) async {
+  Future<void> load(String userId) async {
     isLoading = true;
     notifyListeners();
-    final db = await _db.database;
-    final rows = await db.query(DbConstants.tableFindrisc,
-        where: 'user_id = ?', whereArgs: [userId], orderBy: 'recorded_at DESC');
-    results = rows.map(FindriscResultModel.fromMap).toList();
+    final rows = await _client
+        .from('findrisc_results')
+        .select()
+        .eq('user_id', userId)
+        .order('recorded_at', ascending: false);
+    results = rows.map((m) => FindriscResultModel.fromMap(m)).toList();
     isLoading = false;
     notifyListeners();
   }
 
   Future<void> save(FindriscResultModel r) async {
-    final db = await _db.database;
-    await db.insert(DbConstants.tableFindrisc, r.toMap());
+    await _client.from('findrisc_results').insert(r.toMap());
     await load(r.userId);
   }
 }

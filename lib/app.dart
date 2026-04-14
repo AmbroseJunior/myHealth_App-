@@ -102,7 +102,7 @@ class MyHealthApp extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
-          initialRoute: RouteNames.login,
+          home: const _AuthGate(),
           onGenerateRoute: _generateRoute,
         ),
       ),
@@ -158,5 +158,36 @@ class MyHealthApp extends StatelessWidget {
       default:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
     }
+  }
+}
+
+class _AuthGate extends StatefulWidget {
+  const _AuthGate();
+
+  @override
+  State<_AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<_AuthGate> {
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    await context.read<AuthProvider>().tryAutoLogin();
+    if (!mounted) return;
+    final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
+    Navigator.of(context).pushReplacementNamed(
+      isLoggedIn ? RouteNames.dashboard : RouteNames.login,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
   }
 }

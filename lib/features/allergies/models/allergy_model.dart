@@ -1,6 +1,6 @@
 class AllergyModel {
   final int? id;
-  final int userId;
+  final String userId;
   final String allergen;
   final String? reaction;
   final String? severity;
@@ -21,7 +21,7 @@ class AllergyModel {
 
   factory AllergyModel.fromMap(Map<String, dynamic> m) => AllergyModel(
         id: m['id'] as int?,
-        userId: m['user_id'] as int,
+        userId: m['user_id'] as String,
         allergen: m['allergen'] as String,
         reaction: m['reaction'] as String?,
         severity: m['severity'] as String?,

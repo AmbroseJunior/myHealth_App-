@@ -1,6 +1,6 @@
 class MedicationModel {
   final int? id;
-  final int userId;
+  final String userId;
   final String name;
   final String? dosage;
   final String? frequency;
@@ -27,13 +27,13 @@ class MedicationModel {
 
   factory MedicationModel.fromMap(Map<String, dynamic> m) => MedicationModel(
         id: m['id'] as int?,
-        userId: m['user_id'] as int,
+        userId: m['user_id'] as String,
         name: m['name'] as String,
         dosage: m['dosage'] as String?,
         frequency: m['frequency'] as String?,
         startDate: m['start_date'] as String?,
         endDate: m['end_date'] as String?,
-        isOngoing: (m['is_ongoing'] as int? ?? 1) == 1,
+        isOngoing: m['is_ongoing'] as bool? ?? true,
         notes: m['notes'] as String?,
         createdAt: m['created_at'] as String,
         updatedAt: m['updated_at'] as String,
@@ -46,7 +46,7 @@ class MedicationModel {
         'frequency': frequency,
         'start_date': startDate,
         'end_date': endDate,
-        'is_ongoing': isOngoing ? 1 : 0,
+        'is_ongoing': isOngoing,
         'notes': notes,
         'created_at': createdAt,
         'updated_at': updatedAt,

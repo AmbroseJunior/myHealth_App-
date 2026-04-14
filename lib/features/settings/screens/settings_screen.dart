@@ -32,7 +32,7 @@ class SettingsScreen extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
-                      auth.currentUser?['email'] ?? '',
+                      auth.currentUser?.email ?? '',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                   ),

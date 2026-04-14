@@ -65,17 +65,19 @@ class _DemographicsFormScreenState extends State<DemographicsFormScreen> {
     setState(() => _saving = true);
     final userId = context.read<AuthProvider>().userId;
     final existing = context.read<DemographicsProvider>().patient;
-    await context.read<DemographicsProvider>().save(PatientModel(
-          id: existing?.id,
-          userId: userId,
-          firstName: _firstCtrl.text.trim(),
-          lastName: _lastCtrl.text.trim(),
-          dateOfBirth: _dob != null ? AppDateUtils.formatDate(_dob!) : null,
-          gender: _gender,
-          race: _raceCtrl.text.trim(),
-          ethnicity: _ethnicityCtrl.text.trim(),
-          location: _locationCtrl.text.trim(),
-        ));
+    await context.read<DemographicsProvider>().save(
+      PatientModel(
+        id: existing?.id,
+        userId: userId,
+        firstName: _firstCtrl.text.trim(),
+        lastName: _lastCtrl.text.trim(),
+        dateOfBirth: _dob != null ? AppDateUtils.formatDate(_dob!) : null,
+        gender: _gender,
+        race: _raceCtrl.text.trim(),
+        ethnicity: _ethnicityCtrl.text.trim(),
+        location: _locationCtrl.text.trim(),
+      ),
+    );
     if (!mounted) return;
     Navigator.of(context).pop();
   }
@@ -93,29 +95,43 @@ class _DemographicsFormScreenState extends State<DemographicsFormScreen> {
             children: [
               TextFormField(
                 controller: _firstCtrl,
-                decoration: InputDecoration(labelText: l.firstName, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.firstName,
+                  border: const OutlineInputBorder(),
+                ),
                 validator: (v) => Validators.required(v, l.fieldRequired),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _lastCtrl,
-                decoration: InputDecoration(labelText: l.lastName, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.lastName,
+                  border: const OutlineInputBorder(),
+                ),
                 validator: (v) => Validators.required(v, l.fieldRequired),
               ),
               const SizedBox(height: 12),
               ListTile(
                 title: Text(l.dateOfBirth),
-                subtitle: Text(_dob != null ? AppDateUtils.formatDateDisplay(_dob!) : 'Not set'),
+                subtitle: Text(
+                  _dob != null
+                      ? AppDateUtils.formatDateDisplay(_dob!)
+                      : 'Not set',
+                ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: _pickDate,
                 shape: RoundedRectangleBorder(
-                    side: const BorderSide(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4)),
+                  side: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _gender,
-                decoration: InputDecoration(labelText: l.gender, border: const OutlineInputBorder()),
+                initialValue: _gender,
+                decoration: InputDecoration(
+                  labelText: l.gender,
+                  border: const OutlineInputBorder(),
+                ),
                 items: [
                   DropdownMenuItem(value: 'male', child: Text(l.male)),
                   DropdownMenuItem(value: 'female', child: Text(l.female)),
@@ -126,17 +142,26 @@ class _DemographicsFormScreenState extends State<DemographicsFormScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _raceCtrl,
-                decoration: InputDecoration(labelText: l.race, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.race,
+                  border: const OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _ethnicityCtrl,
-                decoration: InputDecoration(labelText: l.ethnicity, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.ethnicity,
+                  border: const OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _locationCtrl,
-                decoration: InputDecoration(labelText: l.location, border: const OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: l.location,
+                  border: const OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 24),
               SizedBox(
