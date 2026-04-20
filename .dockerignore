@@ -1,0 +1,32 @@
+# Version control
+.git
+.gitignore
+
+# Flutter build output (built inside Docker)
+build/
+.dart_tool/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tests
+test/
+
+# Platform-specific source (web is built inside Docker, others not needed)
+android/
+ios/
+windows/
+macos/
+linux/
+
+# CI/CD config (not needed inside image)
+.github/
+Dockerfile
+docker-compose.yml
+nginx.conf
