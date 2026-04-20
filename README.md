@@ -22,7 +22,9 @@ A multilingual personal health management application built with Flutter and pow
 14. [Dependencies](#dependencies)
 15. [Getting Started](#getting-started)
 16. [Running the App](#running-the-app)
-17. [Design System](#design-system)
+17. [CI/CD Pipeline](#cicd-pipeline)
+18. [Deployment](#deployment)
+19. [Design System](#design-system)
 
 ---
 
@@ -884,6 +886,71 @@ flutter analyze
 ```
 
 Expected: 0 errors (informational style warnings only).
+
+---
+
+## CI/CD Pipeline
+
+GitHub Actions runs on every push and pull request to `master`/`main`. Vercel handles all production deployments automatically via its GitHub integration.
+
+```
+push / PR to master
+       │
+       ├─► GitHub Actions ─────────────────────────────────────────────┐
+       │     Job 1 — analyze   : flutter analyze --no-fatal-infos      │
+       │     Job 2 — build     : flutter build web --release           │
+       │                         upload artifact (retained 3 days)     │
+       │                                                               │
+       └─► Vercel (GitHub integration) ───────────────────────────────►│
+             runs vercel-build.sh                                      │
+               ├─ clones Flutter 3.35.7                                │
+               ├─ flutter pub get                                      │
+               └─ flutter build web --release → build/web/            │
+             serves build/web/ at *.vercel.app with CDN               ◄┘
+```
+
+Workflow file: [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml)
+
+**Caching layers:**
+- Flutter SDK — cached by `subosito/flutter-action` keyed on version + OS
+- Pub packages — `~/.pub-cache` + `.dart_tool` cached on `pubspec.lock` hash
+- Concurrent runs auto-cancelled (`concurrency: cancel-in-progress: true`)
+
+---
+
+## Deployment
+
+### Vercel (Production — Live URL)
+
+Vercel builds and deploys the Flutter web app automatically on every push to `master`.
+
+**One-time setup:**
+1. Go to [vercel.com](https://vercel.com) → **Add New Project** → import this GitHub repo
+2. Set **Framework Preset** to `Other`
+3. Set **Build Command** to `bash vercel-build.sh`
+4. Set **Output Directory** to `build/web`
+5. Leave **Install Command** empty
+6. Click **Deploy**
+
+From that point, every push to `master` triggers an automatic redeploy. The [vercel.json](vercel.json) in the repo root configures SPA routing (all paths → `index.html`), WASM MIME types, and cache headers.
+
+**Build script:** [vercel-build.sh](vercel-build.sh) — clones Flutter 3.35.7, runs `flutter pub get`, then `flutter build web --release`.
+
+### Docker (Self-hosted / Local Preview)
+
+A multi-stage Dockerfile builds the app in a Flutter container and serves it with nginx on port 80.
+
+```bash
+# Build image and run
+docker compose up --build
+
+# Open in browser
+open http://localhost:8080
+```
+
+The final image is ~30 MB (nginx:alpine + compiled Flutter web output).
+
+Files: [Dockerfile](Dockerfile) · [docker-compose.yml](docker-compose.yml) · [nginx.conf](nginx.conf)
 
 ---
 
