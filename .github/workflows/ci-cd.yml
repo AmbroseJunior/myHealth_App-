@@ -1,4 +1,4 @@
-name: CI/CD — myHealth Flutter Web
+name: CI — myHealth Flutter Web
 
 on:
   push:
@@ -14,9 +14,13 @@ env:
   FLUTTER_VERSION: "3.35.7"
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Deployment is handled automatically by Vercel's GitHub integration.
+# This workflow only runs quality checks (analyze + build) so broken code
+# is caught before Vercel attempts its own build.
+# ─────────────────────────────────────────────────────────────────────────────
 jobs:
 
-  # ── 1. Static Analysis ────────────────────────────────────────────────────
+  # ── 1. Analyze ────────────────────────────────────────────────────────────
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
@@ -40,13 +44,10 @@ jobs:
           key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: pub-${{ runner.os }}-
 
-      - name: Install dependencies
-        run: flutter pub get
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos
 
-      - name: Analyze (no fatal infos)
-        run: flutter analyze --no-fatal-infos
-
-  # ── 2. Build Flutter Web ──────────────────────────────────────────────────
+  # ── 2. Build web (confirms the build succeeds before Vercel deploys) ──────
   build:
     name: Build Web
     runs-on: ubuntu-latest
@@ -71,101 +72,18 @@ jobs:
           key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: pub-${{ runner.os }}-
 
-      - name: Install dependencies
-        run: flutter pub get
+      - run: flutter pub get
 
-      - name: Build Flutter Web — release
+      - name: Build Flutter Web
         run: |
           flutter build web \
             --release \
             --no-tree-shake-icons \
             --base-href /
 
-      # Inject Vercel SPA routing config into the build output
-      - name: Write vercel.json into build/web
-        run: |
-          cat > build/web/vercel.json << 'EOF'
-          {
-            "rewrites": [
-              { "source": "/((?!.*\\.).*)", "destination": "/index.html" }
-            ],
-            "headers": [
-              {
-                "source": "/(.*)\\.wasm",
-                "headers": [{ "key": "Content-Type", "value": "application/wasm" }]
-              },
-              {
-                "source": "/(.*)\\.js",
-                "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
-              },
-              {
-                "source": "/assets/(.*)",
-                "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
-              },
-              {
-                "source": "/index.html",
-                "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
-              }
-            ]
-          }
-          EOF
-
-      - name: Upload web build artifact
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: flutter-web-${{ github.sha }}
           path: build/web/
-          retention-days: 7
-
-  # ── 3. Deploy to Vercel (master / main only) ──────────────────────────────
-  deploy:
-    name: Deploy → Vercel
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
-    environment:
-      name: production
-      url: ${{ steps.deploy.outputs.url }}
-
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: flutter-web-${{ github.sha }}
-          path: build/web/
-
-      # Wire up Vercel project linking inside build/web so the CLI
-      # knows which project to deploy to without interactive prompts
-      - name: Link Vercel project
-        run: |
-          mkdir -p build/web/.vercel
-          printf '{"projectId":"%s","orgId":"%s"}' \
-            "${{ secrets.VERCEL_PROJECT_ID }}" \
-            "${{ secrets.VERCEL_ORG_ID }}" \
-            > build/web/.vercel/project.json
-
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
-
-      - name: Deploy to Vercel (production)
-        id: deploy
-        working-directory: build/web
-        run: |
-          URL=$(vercel --prod \
-            --token="${{ secrets.VERCEL_TOKEN }}" \
-            --yes \
-            2>&1 | tail -1)
-          echo "url=$URL" >> "$GITHUB_OUTPUT"
-          echo "Deployed to: $URL"
-
-      - name: Comment deployment URL on PR (if applicable)
-        if: github.event.pull_request.number != ''
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🚀 Deployed to Vercel: ${{ steps.deploy.outputs.url }}`
-            })
+          retention-days: 3
